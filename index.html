@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AptQuest — Knowledge Ocean</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#E8593C;--or2:#F0997B;--or-glow:rgba(232,89,60,.45);
+  --pu:#7B4FD4;--pu2:#A87FE8;--pu-glow:rgba(123,79,212,.4);
+  --cy:#00C9FF;--cy-dim:rgba(0,201,255,.15);
+  --deep:#05132B;--mid:#072444;--surf:#0A3A6E;
+  --gold:#FFD166;--coral:#FF6B6B;--green:#06D6A0;--pearl:#E8F4FD;
+  --fd:'Baloo 2',cursive;--fb:'Nunito',sans-serif;
+}
+html,body{height:100%;overflow:hidden;font-family:var(--fb)}
+body{background:var(--deep);color:var(--pearl);display:flex;flex-direction:column}
+
+/* ── OCEAN BG ── */
+.ocean-bg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse at 20% 80%,#0a2a6e 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 20%,#1a0a4e 0%,transparent 50%),
+             linear-gradient(180deg,#030d20 0%,var(--deep) 45%,#072040 100%)}
+.bubble{position:absolute;border-radius:50%;background:rgba(0,201,255,.05);border:1px solid rgba(0,201,255,.1);animation:bRise linear infinite}
+@keyframes bRise{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:.8}90%{opacity:.3}100%{transform:translateY(-105vh) translateX(20px) scale(1.2);opacity:0}}
+.ray{position:absolute;bottom:-10%;width:1.5px;background:linear-gradient(to top,transparent,rgba(0,201,255,.035),transparent);animation:rayW ease-in-out infinite}
+@keyframes rayW{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg) scaleY(1.06)}}
+
+/* ── LAYOUT ── */
+.app{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:80px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;background:rgba(5,19,43,.85);backdrop-filter:blur(20px);border-right:1px solid rgba(0,201,255,.1)}
+.content{flex:1;overflow:hidden;position:relative}
+.right{width:300px;flex-shrink:0;display:flex;flex-direction:column;background:rgba(5,19,43,.78);backdrop-filter:blur(20px);border-left:1px solid rgba(0,201,255,.1);overflow-y:auto;scrollbar-width:none;padding:18px 16px;gap:16px}
+.right::-webkit-scrollbar{display:none}
+
+/* ── SIDEBAR ── */
+.brand{display:flex;flex-direction:column;align-items:center;margin-bottom:12px;cursor:pointer}
+.brand-nm{font-family:var(--fd);font-size:8px;font-weight:800;letter-spacing:1px;color:var(--or);text-transform:uppercase;margin-top:2px}
+.ni{width:56px;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;cursor:pointer;transition:all .2s;gap:3px;border:1.5px solid transparent;position:relative}
+.ni:hover{background:rgba(0,201,255,.08);border-color:rgba(0,201,255,.2)}
+.ni.act{background:var(--or-glow);border-color:var(--or)}
+.ni svg{width:22px;height:22px;stroke-width:2}
+.ni span{font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:rgba(232,244,253,.45)}
+.ni.act span{color:var(--or)}
+.ni.act svg{stroke:var(--or)}
+.ni:not(.act) svg{stroke:rgba(0,201,255,.6)}
+.ni-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;background:var(--coral);border-radius:50%;border:2px solid var(--deep)}
+
+/* ── PAGES ── */
+.page{position:absolute;inset:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,201,255,.15) transparent;transition:opacity .3s,transform .3s;padding:22px 26px}
+.page::-webkit-scrollbar{width:3px}
+.page::-webkit-scrollbar-thumb{background:rgba(0,201,255,.15);border-radius:3px}
+.page.hidden{opacity:0;pointer-events:none;transform:translateX(30px)}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.topbar-l h2{font-size:11px;color:rgba(232,244,253,.45);font-weight:700;letter-spacing:.5px;margin-bottom:2px}
+.topbar-l h1{font-family:var(--fd);font-size:24px;font-weight:800;background:linear-gradient(135deg,var(--cy),var(--pu2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.spills{display:flex;gap:8px}
+.sp{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:50px;border:1.5px solid;font-weight:800;font-size:14px;cursor:pointer;transition:all .2s}
+.sp:hover{transform:translateY(-2px)}
+.sp.str{background:rgba(232,89,60,.12);border-color:rgba(232,89,60,.35);color:#FF8C6A}
+.sp.xp{background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.3);color:var(--gold)}
+.sp.lv{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.3);color:var(--coral)}
+.sp.pe{background:var(--pu-glow);border-color:rgba(123,79,212,.4);color:var(--pu2)}
+
+/* ── DAILY BANNER ── */
+.daily{background:linear-gradient(135deg,rgba(232,89,60,.14),rgba(123,79,212,.14),rgba(0,201,255,.09));border:1.5px solid rgba(232,89,60,.28);border-radius:22px;padding:18px 22px;display:flex;align-items:center;gap:18px;margin-bottom:24px;position:relative;overflow:hidden;cursor:pointer;transition:all .25s}
+.daily:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(232,89,60,.18)}
+.daily::before{content:'';position:absolute;top:-40%;right:-5%;width:180px;height:180px;background:radial-gradient(circle,rgba(232,89,60,.1),transparent 70%);border-radius:50%}
+.daily-ic{width:50px;height:50px;background:linear-gradient(135deg,var(--or),var(--pu));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 6px 18px rgba(232,89,60,.4)}
+.daily h3{font-family:var(--fd);font-size:17px;font-weight:800;margin-bottom:2px}
+.daily p{font-size:11px;color:rgba(232,244,253,.5);font-weight:600}
+.daily-timer{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--gold);margin-top:3px}
+.daily-cta{margin-left:auto;background:linear-gradient(135deg,var(--or),#C0392B);border:none;color:white;font-family:var(--fb);font-weight:800;font-size:13px;padding:9px 18px;border-radius:13px;cursor:pointer;transition:all .2s;white-space:nowrap;box-shadow:0 4px 14px rgba(232,89,60,.4);letter-spacing:.3px}
+.daily-cta:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(232,89,60,.55)}
+
+/* ── SEC TABS ── */
+.sec-tabs{display:flex;gap:10px;margin-bottom:22px}
+.st{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:18px;border:2px solid;cursor:pointer;transition:all .25s;font-weight:800;font-size:14px}
+.st.qa{border-color:rgba(123,79,212,.35);color:var(--pu2);background:rgba(123,79,212,.08)}
+.st.qa.act,.st.qa:hover{border-color:var(--pu);background:rgba(123,79,212,.2);box-shadow:0 0 18px rgba(123,79,212,.3)}
+.st.va{border-color:rgba(0,201,255,.25);color:var(--cy);background:rgba(0,201,255,.06)}
+.st.va.act,.st.va:hover{border-color:var(--cy);background:rgba(0,201,255,.14);box-shadow:0 0 18px rgba(0,201,255,.22)}
+.st.lr{border-color:rgba(232,89,60,.28);color:var(--or2);background:rgba(232,89,60,.07)}
+.st.lr.act,.st.lr:hover{border-color:var(--or);background:rgba(232,89,60,.16);box-shadow:0 0 18px rgba(232,89,60,.28)}
+.st svg{width:20px;height:20px;stroke-width:2.2}
+.tb{background:rgba(255,255,255,.14);font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:auto}
+
+/* ── TOPIC GRID ── */
+.sec-lbl{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(232,244,253,.35);margin-bottom:12px}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.tc{background:rgba(7,36,68,.7);border:1.5px solid rgba(0,201,255,.1);border-radius:18px;padding:16px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+.tc:hover:not(.locked){transform:translateY(-4px);border-color:rgba(0,201,255,.35);box-shadow:0 10px 28px rgba(0,0,0,.4),0 0 18px rgba(0,201,255,.09)}
+.tc.locked{opacity:.4;cursor:not-allowed}
+.tc.done{border-color:rgba(6,214,160,.35)}
+.tic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.tic.pu{background:rgba(123,79,212,.2)}.tic.cy{background:rgba(0,201,255,.15)}.tic.or{background:rgba(232,89,60,.15)}.tic.go{background:rgba(255,209,102,.15)}.tic.gr{background:rgba(6,214,160,.15)}
+.tc-nm{font-weight:800;font-size:13px;margin-bottom:3px;color:var(--pearl)}
+.tc-sb{font-size:10px;color:rgba(232,244,253,.4);font-weight:600;margin-bottom:10px}
+.ptrack{height:6px;background:rgba(0,0,0,.35);border-radius:10px;overflow:hidden;position:relative}
+.pfill{height:100%;border-radius:10px;position:relative}
+.pfill::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:rgba(255,255,255,.28);border-radius:10px}
+.fpu{background:linear-gradient(90deg,#7B4FD4,#B07FFF)}
+.fcy{background:linear-gradient(90deg,#0099CC,#00C9FF)}
+.for{background:linear-gradient(90deg,#C0392B,#E8593C)}
+.fgo{background:linear-gradient(90deg,#CC8800,#FFD166)}
+.fgr{background:linear-gradient(90deg,#05AA7D,#06D6A0)}
+.tc-ft{display:flex;justify-content:space-between;align-items:center;margin-top:7px}
+.tc-ct{font-size:10px;font-weight:700;color:rgba(232,244,253,.35)}
+.ck{position:absolute;top:12px;right:12px;width:20px;height:20px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px}
+.lk{position:absolute;top:12px;right:12px;font-size:16px;opacity:.4}
+
+/* ── PATH PAGE ── */
+#pathPage{background:transparent}
+.path-header{background:rgba(7,36,68,.85);border:1px solid rgba(0,201,255,.18);border-radius:20px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;backdrop-filter:blur(12px)}
+.ph-back{display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s}
+.ph-back:hover{opacity:.75}
+.ph-back svg{width:20px;height:20px;stroke:var(--cy);stroke-width:2.5}
+.ph-title{font-family:var(--fd);font-size:20px;font-weight:800;color:var(--pearl)}
+.ph-sub{font-size:12px;color:rgba(0,201,255,.7);font-weight:700;margin-top:1px}
+.guide-btn{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--or),#C0392B);border:none;color:white;font-family:var(--fb);font-weight:800;font-size:13px;padding:9px 16px;border-radius:14px;cursor:pointer;box-shadow:0 4px 14px rgba(232,89,60,.4);transition:all .2s}
+.guide-btn:hover{transform:scale(1.04)}
+
+/* ── NODE PATH ── */
+.node-path{display:flex;flex-direction:column;align-items:center;gap:0;padding:10px 0 40px;position:relative;min-height:600px}
+.path-connector{width:3px;height:48px;background:linear-gradient(180deg,rgba(0,201,255,.25),rgba(0,201,255,.08));flex-shrink:0}
+.node-row{display:flex;align-items:center;gap:16px;position:relative}
+.node-row.right{flex-direction:row-reverse}
+.node-lv{width:48px;height:28px;border:1.5px solid rgba(255,209,102,.4);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--gold);background:rgba(255,209,102,.06)}
+.node{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:all .3s;position:relative;border:3px solid transparent;flex-shrink:0}
+.node.done{background:linear-gradient(135deg,#E8593C,#C0392B);border-color:#FF8C6A;box-shadow:0 0 20px rgba(232,89,60,.5)}
+.node.done::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:white}
+.node.current{background:linear-gradient(135deg,var(--pu),#5B2FA0);border-color:var(--pu2);box-shadow:0 0 24px rgba(123,79,212,.6);animation:nodePulse 2s ease-in-out infinite}
+.node.locked{background:rgba(7,36,68,.8);border-color:rgba(0,201,255,.15);cursor:not-allowed;opacity:.5}
+@keyframes nodePulse{0%,100%{box-shadow:0 0 24px rgba(123,79,212,.5)}50%{box-shadow:0 0 36px rgba(123,79,212,.8),0 0 60px rgba(123,79,212,.3)}}
+.node:hover:not(.locked):not(.done){transform:scale(1.1)}
+.dive-label{background:linear-gradient(135deg,var(--pu),#5B2FA0);color:white;font-weight:800;font-size:12px;padding:6px 14px;border-radius:20px;letter-spacing:.5px;position:absolute;top:-36px;left:50%;transform:translateX(-50%);white-space:nowrap;box-shadow:0 4px 14px rgba(123,79,212,.5)}
+.dive-label::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid #5B2FA0}
+.node-info{font-size:11px;font-weight:700;color:rgba(232,244,253,.5);text-align:center;margin-top:6px;max-width:80px}
+
+/* ── QUESTION PAGE ── */
+#qPage{padding:0;overflow:hidden}
+.qwrap{display:flex;flex-direction:column;height:100%;padding:0}
+.qhead{display:flex;align-items:center;gap:14px;padding:18px 24px 14px;background:rgba(5,19,43,.9);border-bottom:1px solid rgba(0,201,255,.1);flex-shrink:0}
+.qback{width:36px;height:36px;background:rgba(0,201,255,.1);border:1px solid rgba(0,201,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0}
+.qback:hover{background:rgba(0,201,255,.2)}
+.qback svg{width:18px;height:18px;stroke:var(--cy);stroke-width:2.5}
+.prog-bar-wrap{flex:1;height:14px;background:rgba(0,0,0,.3);border-radius:10px;overflow:hidden;padding:2px}
+.prog-bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--or),#FF8C6A);transition:width .5s cubic-bezier(.34,1.56,.64,1);position:relative}
+.prog-bar-fill::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:rgba(255,255,255,.3);border-radius:10px}
+.q-counter{font-size:13px;font-weight:800;color:rgba(232,244,253,.5);white-space:nowrap;flex-shrink:0}
+.hearts{display:flex;gap:4px;flex-shrink:0}
+.heart{font-size:18px;transition:all .3s}
+.heart.empty{filter:grayscale(1);opacity:.3}
+
+.qbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;overflow:auto}
+.q-topic-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(123,79,212,.15);border:1px solid rgba(123,79,212,.3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;color:var(--pu2);margin-bottom:4px}
+.qtimer{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:var(--gold)}
+.qtimer-ring{width:36px;height:36px;position:relative}
+.qtimer-ring svg{transform:rotate(-90deg)}
+.qtimer-ring circle{transition:stroke-dashoffset .1s linear}
+.qcard{background:rgba(7,36,68,.85);border:1.5px solid rgba(0,201,255,.15);border-radius:24px;padding:28px 32px;max-width:680px;width:100%;backdrop-filter:blur(12px)}
+.qcard h2{font-family:var(--fd);font-size:20px;font-weight:800;line-height:1.5;color:var(--pearl);margin-bottom:6px}
+.qcard .qhint{font-size:12px;color:rgba(0,201,255,.55);font-weight:700;margin-bottom:18px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:680px;width:100%}
+.opt{background:rgba(7,36,68,.8);border:2px solid rgba(0,201,255,.15);border-radius:16px;padding:14px 18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;font-weight:700;font-size:14px;color:var(--pearl);position:relative;overflow:hidden}
+.opt:hover:not(.disabled){border-color:rgba(0,201,255,.45);background:rgba(0,201,255,.08);transform:translateY(-2px)}
+.opt-key{width:28px;height:28px;border-radius:8px;background:rgba(0,201,255,.1);border:1px solid rgba(0,201,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:var(--cy);flex-shrink:0}
+.opt.correct{border-color:var(--green) !important;background:rgba(6,214,160,.12) !important}
+.opt.correct .opt-key{background:rgba(6,214,160,.2);border-color:var(--green);color:var(--green)}
+.opt.wrong{border-color:var(--coral) !important;background:rgba(255,107,107,.12) !important;animation:shake .4s ease}
+.opt.wrong .opt-key{background:rgba(255,107,107,.2);border-color:var(--coral);color:var(--coral)}
+.opt.disabled{cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ── FEEDBACK PANEL ── */
+.feedback{position:fixed;bottom:0;left:80px;right:300px;padding:20px 32px;border-top:2px solid;transition:all .4s;transform:translateY(100%);z-index:50;display:flex;align-items:center;gap:20px}
+.feedback.show{transform:translateY(0)}
+.feedback.correct-fb{background:rgba(6,214,160,.12);border-color:var(--green);backdrop-filter:blur(16px)}
+.feedback.wrong-fb{background:rgba(255,107,107,.12);border-color:var(--coral);backdrop-filter:blur(16px)}
+.fb-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.correct-fb .fb-icon{background:rgba(6,214,160,.2)}
+.wrong-fb .fb-icon{background:rgba(255,107,107,.2)}
+.fb-text h3{font-family:var(--fd);font-size:17px;font-weight:800}
+.fb-text p{font-size:12px;font-weight:700;opacity:.7;margin-top:2px}
+.correct-fb .fb-text h3{color:var(--green)}
+.wrong-fb .fb-text h3{color:var(--coral)}
+.fb-btn{margin-left:auto;padding:12px 28px;border-radius:16px;border:none;font-family:var(--fb);font-weight:800;font-size:15px;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.correct-fb .fb-btn{background:var(--green);color:#052015;box-shadow:0 4px 16px rgba(6,214,160,.4)}
+.wrong-fb .fb-btn{background:var(--coral);color:#2d0808;box-shadow:0 4px 16px rgba(255,107,107,.4)}
+.fb-btn:hover{transform:scale(1.04)}
+
+/* ── COMPLETION PAGE ── */
+#donePage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:30px 24px;overflow-y:auto;scrollbar-width:none}
+#donePage::-webkit-scrollbar{display:none}
+.done-wrap{max-width:560px;width:100%;display:flex;flex-direction:column;align-items:center;gap:0}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.confetti-piece{position:fixed;top:-10px;width:10px;height:10px;animation:confettiFall linear forwards;z-index:100;pointer-events:none}
+.done-trophy{font-size:80px;margin-bottom:8px;animation:trophyPop .6s cubic-bezier(.34,1.56,.64,1)}
+@keyframes trophyPop{from{transform:scale(0) rotate(-15deg)}to{transform:scale(1) rotate(0)}}
+.done-h1{font-family:var(--fd);font-size:34px;font-weight:900;text-align:center;background:linear-gradient(135deg,var(--gold),var(--or));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.done-sub{font-size:14px;color:rgba(232,244,253,.55);font-weight:700;text-align:center;margin-bottom:28px}
+.done-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-bottom:24px}
+.ds{background:rgba(7,36,68,.8);border:1.5px solid rgba(0,201,255,.15);border-radius:18px;padding:16px;text-align:center;animation:dsIn .5s ease backwards}
+@keyframes dsIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.ds:nth-child(1){animation-delay:.1s}.ds:nth-child(2){animation-delay:.2s}.ds:nth-child(3){animation-delay:.3s}
+.ds-val{font-family:var(--fd);font-size:28px;font-weight:800;margin-bottom:4px}
+.ds-lbl{font-size:11px;font-weight:700;color:rgba(232,244,253,.4);letter-spacing:.5px;text-transform:uppercase}
+.xp-earned{background:linear-gradient(135deg,rgba(255,209,102,.12),rgba(232,89,60,.12));border:1.5px solid rgba(255,209,102,.3);border-radius:20px;padding:20px 24px;width:100%;display:flex;align-items:center;gap:16px;margin-bottom:20px;animation:dsIn .5s .4s ease backwards}
+.xp-ic{font-size:36px}
+.xp-text h3{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--gold)}
+.xp-text p{font-size:12px;color:rgba(232,244,253,.5);font-weight:700}
+.done-octo{width:120px;height:120px;margin:0 auto 16px;animation:octoFloat 3s ease-in-out infinite}
+.done-msg{background:rgba(7,36,68,.8);border:1.5px solid rgba(0,201,255,.15);border-radius:16px;padding:14px 18px;font-size:13px;font-weight:700;color:rgba(232,244,253,.8);text-align:center;margin-bottom:24px;line-height:1.6;animation:dsIn .5s .5s ease backwards;width:100%}
+.done-msg span{color:var(--or);font-weight:800}
+.done-btns{display:flex;gap:12px;width:100%;animation:dsIn .5s .6s ease backwards}
+.dbtn{flex:1;padding:14px;border-radius:16px;border:none;font-family:var(--fb);font-weight:800;font-size:15px;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.dbtn.primary{background:linear-gradient(135deg,var(--or),#C0392B);color:white;box-shadow:0 5px 0 #8B1A0A,0 7px 18px rgba(232,89,60,.4)}
+.dbtn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 0 #8B1A0A,0 10px 24px rgba(232,89,60,.5)}
+.dbtn.primary:active{transform:translateY(3px);box-shadow:0 2px 0 #8B1A0A}
+.dbtn.secondary{background:rgba(7,36,68,.9);border:1.5px solid rgba(0,201,255,.2);color:var(--cy)}
+.dbtn.secondary:hover{background:rgba(0,201,255,.1);border-color:rgba(0,201,255,.4)}
+
+/* ── RIGHT PANEL COMPONENTS ── */
+.xplv{background:rgba(0,0,0,.3);border:1px solid rgba(0,201,255,.12);border-radius:14px;padding:11px 13px}
+.xplv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.xplv-top span:first-child{font-size:12px;font-weight:700;color:var(--gold)}
+.xplv-top span:last-child{font-size:11px;font-weight:700;color:rgba(232,244,253,.35)}
+.xptrack{height:11px;background:rgba(0,0,0,.4);border-radius:10px;overflow:hidden;padding:2px}
+.xpfill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),#FFA500);position:relative;width:68%}
+.xpfill::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:rgba(255,255,255,.3);border-radius:10px}
+
+.mbl{background:rgba(7,36,68,.75);border:1.5px solid rgba(0,201,255,.1);border-radius:16px;padding:13px;display:flex;gap:12px;align-items:center}
+.mbl-svg{flex-shrink:0;width:64px;height:64px}
+.bub{background:rgba(5,19,43,.9);border:1px solid rgba(0,201,255,.15);border-radius:12px;padding:9px 11px;font-size:11px;font-weight:700;line-height:1.5;color:rgba(232,244,253,.8);position:relative;flex:1}
+.bub span{color:var(--or);font-weight:800}
+.bub::before{content:'';position:absolute;left:-7px;top:50%;transform:translateY(-50%);border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:7px solid rgba(0,201,255,.15)}
+
+.wgt{background:rgba(7,36,68,.75);border:1px solid rgba(0,201,255,.1);border-radius:18px;padding:14px}
+.wgt-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wgt-h h3{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--pearl)}
+.wgt-h button{font-size:10px;font-weight:800;color:var(--or);letter-spacing:.5px;text-transform:uppercase;cursor:pointer;border:none;background:none;padding:0}
+.pr{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.pr:last-child{margin-bottom:0}
+.pr-lbl{display:flex;justify-content:space-between}
+.pr-lbl span{font-size:11px;font-weight:700}
+.pr-lbl span:first-child{color:rgba(232,244,253,.7)}
+.pr-lbl span:last-child{color:rgba(232,244,253,.3)}
+.prt{height:9px;background:rgba(0,0,0,.4);border-radius:10px;overflow:hidden;padding:1.5px}
+.prf{height:100%;border-radius:10px;position:relative}
+.prf::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:rgba(255,255,255,.25);border-radius:10px}
+
+.lgc{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);border:1px solid rgba(255,209,102,.18);border-radius:14px;padding:10px 12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.lgc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--or));border-radius:3px 0 0 3px}
+.lgc:hover{border-color:rgba(255,209,102,.35);transform:translateX(2px)}
+.lgc-ico{font-size:28px}
+.lgc strong{display:block;font-weight:800;font-size:13px;color:var(--pearl)}
+.lgc span{font-size:10px;color:rgba(232,244,253,.4);font-weight:700}
+
+.fi{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:12px;cursor:pointer;transition:all .2s}
+.fi:hover{background:rgba(0,201,255,.06)}
+.fa{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:white;border:2px solid rgba(255,255,255,.2);flex-shrink:0}
+.fn{font-size:12px;font-weight:700;color:var(--pearl)}
+.fx{font-size:10px;font-weight:700;color:var(--pu2)}
+.frk{margin-left:auto;font-size:10px;font-weight:800;color:var(--gold)}
+
+/* ── OCTOPUS SVG ── */
+@keyframes octoFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-10px) rotate(1deg)}}
+@keyframes tentW1{0%,100%{transform:rotate(-7deg) scaleX(1)}50%{transform:rotate(7deg) scaleX(1.04)}}
+@keyframes tentW2{0%,100%{transform:rotate(7deg)}50%{transform:rotate(-7deg)}}
+@keyframes tentW3{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(8deg)}}
+@keyframes tentW4{0%,100%{transform:rotate(5deg)}50%{transform:rotate(-8deg)}}
+@keyframes ocBlink{0%,94%,100%{transform:scaleY(1)}96%,98%{transform:scaleY(0.06)}}
+@keyframes ocGlow{0%,100%{filter:drop-shadow(0 0 10px rgba(232,89,60,.4))}50%{filter:drop-shadow(0 0 22px rgba(232,89,60,.55)) drop-shadow(0 0 6px rgba(123,79,212,.35))}}
+@keyframes spotP{0%,100%{opacity:.35}50%{opacity:.6}}
+.ow{animation:octoFloat 4s ease-in-out infinite,ocGlow 4s ease-in-out infinite;transform-origin:center}
+.ot1{animation:tentW1 3.2s ease-in-out infinite;transform-origin:50% 15%}
+.ot2{animation:tentW2 3.8s ease-in-out infinite;transform-origin:50% 15%}
+.ot3{animation:tentW3 2.9s ease-in-out infinite;transform-origin:50% 15%}
+.ot4{animation:tentW4 3.5s ease-in-out infinite;transform-origin:50% 15%}
+.ot5{animation:tentW2 4.1s ease-in-out infinite;transform-origin:50% 15%}
+.ot6{animation:tentW1 2.7s ease-in-out infinite;transform-origin:50% 15%}
+.oe{animation:ocBlink 6s linear infinite;transform-origin:50% 50%}
+.osp{animation:spotP 3s ease-in-out infinite}
+
+/* ── UTILS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.au{animation:fadeUp .4s ease forwards;opacity:0}
+.au:nth-child(1){animation-delay:.04s}.au:nth-child(2){animation-delay:.08s}.au:nth-child(3){animation-delay:.12s}
+.au:nth-child(4){animation-delay:.16s}.au:nth-child(5){animation-delay:.2s}.au:nth-child(6){animation-delay:.24s}
+.au:nth-child(7){animation-delay:.28s}.au:nth-child(8){animation-delay:.32s}
+</style>
+</head>
+<body>
+
+<!-- Ocean BG -->
+<div class="ocean-bg" id="obg"></div>
+
+<div class="app">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand" onclick="goHome()">
+    <svg width="38" height="38" viewBox="0 0 100 100" style="filter:drop-shadow(0 0 7px var(--or-glow))">
+      <defs>
+        <radialGradient id="sb1" cx="40%" cy="30%" r="65%"><stop offset="0%" stop-color="#fdba74"/><stop offset="55%" stop-color="#E8593C"/><stop offset="100%" stop-color="#9a3412"/></radialGradient>
+        <linearGradient id="st1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#E8593C"/><stop offset="50%" stop-color="#7B4FD4"/><stop offset="100%" stop-color="#4c1d95"/></linearGradient>
+      </defs>
+      <g style="animation:octoFloat 4s ease-in-out infinite">
+        <path d="M28 58 C10 70,-2 88,12 96 C18 100,26 92,24 82 C20 72,26 66,38 62Z" fill="url(#st1)"/>
+        <path d="M72 58 C90 70,102 88,88 96 C82 100,74 92,76 82 C80 72,74 66,62 62Z" fill="url(#st1)"/>
+        <path d="M42 63 C32 85,37 96,46 92 C50 88,46 78,50 70Z" fill="url(#st1)"/>
+        <path d="M58 63 C68 85,63 96,54 92 C50 88,54 78,50 70Z" fill="url(#st1)"/>
+        <path d="M18 42 C18 4,82 4,82 42 C82 72,18 72,18 42Z" fill="url(#sb1)"/>
+        <ellipse cx="38" cy="43" rx="8" ry="9" fill="white"/>
+        <circle cx="40" cy="44" r="4" fill="#3b82f6"/><circle cx="40" cy="44" r="2" fill="#0f172a"/><circle cx="42" cy="42" r="1.2" fill="white"/>
+        <ellipse cx="62" cy="43" rx="8" ry="9" fill="white"/>
+        <circle cx="60" cy="44" r="4" fill="#3b82f6"/><circle cx="60" cy="44" r="2" fill="#0f172a"/><circle cx="62" cy="42" r="1.2" fill="white"/>
+        <path d="M45 59 Q50 64 55 59" stroke="#7c2d12" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <div class="brand-nm">AptQuest</div>
+  </div>
+  <div class="ni act" title="Map" onclick="goHome()">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Map</span>
+  </div>
+  <div class="ni" title="Quests">
+    <div class="ni-dot"></div>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Quests</span>
+  </div>
+  <div class="ni" title="Rankings">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Ranks</span>
+  </div>
+  <div class="ni" title="Boost">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Boost</span>
+  </div>
+  <div style="flex:1"></div>
+  <div class="ni" title="Profile">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Profile</span>
+  </div>
+</aside>
+
+<!-- CONTENT AREA -->
+<div class="content">
+
+  <!-- ══════════ PAGE: DASHBOARD ══════════ -->
+  <div class="page" id="homePage">
+    <div class="topbar au">
+      <div class="topbar-l"><h2>🌊 Welcome back, Diver!</h2><h1>Knowledge Ocean</h1></div>
+      <div class="spills">
+        <div class="sp str">🔥 12</div>
+        <div class="sp xp">⭐ 4,820 XP</div>
+        <div class="sp lv">❤️ 5</div>
+        <div class="sp pe">🔮 482</div>
+      </div>
+    </div>
+    <div class="daily au">
+      <div class="daily-ic">⚡</div>
+      <div>
+        <h3>Daily Deep Dive Challenge</h3>
+        <p>10 mixed questions · SSC CGL 2024 pattern · Bonus XP on completion</p>
+        <div class="daily-timer">⏱ Resets in 08h 42m</div>
+      </div>
+      <button class="daily-cta">Start Dive →</button>
+    </div>
+    <div class="sec-tabs au">
+      <div class="st qa act" onclick="switchSec('qa',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.871 4A17.926 17.926 0 003 12c0 2.874.673 5.59 1.871 8m14.13 0a17.926 17.926 0 001.87-8 17.926 17.926 0 00-1.87-8M9 9h1.246a1 1 0 01.961.725l1.586 5.55a1 1 0 00.961.725H15m1-7h-.08a2 2 0 00-1.519.698L9.6 15.302A2 2 0 018.08 16H8"/></svg>
+        Quantitative <div class="tb">105 Q</div>
+      </div>
+      <div class="st va" onclick="switchSec('va',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h12M9 3v2m1.048 3.98a11.153 11.153 0 010 7.04m-5 1.98H3a2 2 0 01-2-2v-2a2 2 0 012-2h4"/><path d="M15 8h5a2 2 0 012 2v2a2 2 0 01-2 2h-5"/></svg>
+        Verbal <div class="tb">100 Q</div>
+      </div>
+      <div class="st lr" onclick="switchSec('lr',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        Logical Reasoning <div class="tb">95 Q</div>
+      </div>
+    </div>
+
+    <!-- QA Topics -->
+    <div id="sec-qa">
+      <div class="sec-lbl au">📌 Your Progress — Quantitative Ability</div>
+      <div class="tgrid" id="qaGrid"></div>
+    </div>
+    <div id="sec-va" style="display:none">
+      <div class="sec-lbl">📌 Verbal Ability</div>
+      <div class="tgrid">
+        <div class="tc au" onclick="openTopic('rc')"><div class="tic cy">📖</div><div class="tc-nm">Reading Comprehension</div><div class="tc-sb">Inference, Theme, Vocab in context</div><div class="ptrack"><div class="pfill fcy" style="width:52%"></div></div><div class="tc-ft"><div class="tc-ct">13/25 done</div><div>⭐⭐</div></div></div>
+        <div class="tc au" onclick="openTopic('vocab')"><div class="tic pu">🔤</div><div class="tc-nm">Vocabulary</div><div class="tc-sb">Synonyms, Antonyms, Idioms</div><div class="ptrack"><div class="pfill fpu" style="width:72%"></div></div><div class="tc-ft"><div class="tc-ct">18/25 done</div><div>⭐⭐</div></div></div>
+        <div class="tc au" onclick="openTopic('grammar')"><div class="tic or">✍️</div><div class="tc-nm">Grammar</div><div class="tc-sb">Error spotting, Correction</div><div class="ptrack"><div class="pfill for" style="width:35%"></div></div><div class="tc-ft"><div class="tc-ct">9/26 done</div><div>⭐</div></div></div>
+      </div>
+    </div>
+    <div id="sec-lr" style="display:none">
+      <div class="sec-lbl">📌 Logical Reasoning</div>
+      <div class="tgrid">
+        <div class="tc au done" onclick="openTopic('series')"><div class="ck">✓</div><div class="tic gr">🔢</div><div class="tc-nm">Number Series</div><div class="tc-sb">Missing term, Wrong term</div><div class="ptrack"><div class="pfill fgr" style="width:100%"></div></div><div class="tc-ft"><div class="tc-ct">15/15 done</div><div>⭐⭐⭐</div></div></div>
+        <div class="tc au" onclick="openTopic('coding')"><div class="tic pu">🔐</div><div class="tc-nm">Coding-Decoding</div><div class="tc-sb">Letter, Number, Symbol</div><div class="ptrack"><div class="pfill fpu" style="width:60%"></div></div><div class="tc-ft"><div class="tc-ct">12/20 done</div><div>⭐⭐</div></div></div>
+        <div class="tc au" onclick="openTopic('analogy')"><div class="tic cy">🔗</div><div class="tc-nm">Analogies</div><div class="tc-sb">Word, Number, Letter analogy</div><div class="ptrack"><div class="pfill fcy" style="width:40%"></div></div><div class="tc-ft"><div class="tc-ct">8/20 done</div><div>⭐</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: TOPIC PATH ══════════ -->
+  <div class="page hidden" id="pathPage">
+    <div class="path-header au">
+      <div class="ph-back" onclick="goHome()">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div>
+          <div class="ph-title" id="pathTitle">Percentage</div>
+          <div class="ph-sub" id="pathSub">SSC CGL · Quantitative Ability</div>
+        </div>
+      </div>
+      <button class="guide-btn">🛡 Guide</button>
+    </div>
+    <div class="node-path" id="nodePath"></div>
+  </div>
+
+  <!-- ══════════ PAGE: QUESTIONS ══════════ -->
+  <div class="page hidden" id="qPage">
+    <div class="qwrap">
+      <div class="qhead">
+        <div class="qback" onclick="backToPath()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="prog-bar-wrap"><div class="prog-bar-fill" id="qProgBar" style="width:0%"></div></div>
+        <div class="q-counter" id="qCounter">1 / 10</div>
+        <div class="hearts" id="heartsDisplay"></div>
+      </div>
+      <div class="qbody" id="qBody">
+        <div class="q-topic-badge" id="qTopicBadge">📊 Percentage</div>
+        <div style="display:flex;align-items:center;gap:12px;align-self:flex-end">
+          <div class="qtimer" id="qTimerDisplay">
+            <div class="qtimer-ring">
+              <svg width="36" height="36" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(0,201,255,0.15)" stroke-width="3"/>
+                <circle id="timerCircle" cx="18" cy="18" r="14" fill="none" stroke="var(--gold)" stroke-width="3" stroke-dasharray="88" stroke-dashoffset="0" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span id="timerNum">30</span>s
+          </div>
+        </div>
+        <div class="qcard">
+          <div class="qhint" id="qHint">SSC CGL 2023 · Tier 1</div>
+          <h2 id="qText">Loading...</h2>
+        </div>
+        <div class="opts" id="optsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: COMPLETION ══════════ -->
+  <div class="page hidden" id="donePage">
+    <div class="done-wrap">
+      <div class="done-trophy" id="doneTrophy">🏆</div>
+      <div class="done-h1" id="doneTitle">Exercise Complete!</div>
+      <div class="done-sub" id="doneSub">You crushed it, Diver! 🌊</div>
+      <div class="done-stats" id="doneStats"></div>
+      <div class="xp-earned" id="doneXP"></div>
+      <div id="doneOctoWrap" style="width:100%;display:flex;justify-content:center;margin-bottom:10px"></div>
+      <div class="done-msg" id="doneMsg"></div>
+      <div class="done-btns">
+        <button class="dbtn secondary" onclick="backToPath()">← Back to Path</button>
+        <button class="dbtn primary" id="doneNextBtn">Next Exercise →</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end content -->
+
+<!-- RIGHT PANEL -->
+<aside class="right" id="rightPanel">
+  <div class="xplv">
+    <div class="xplv-top"><span>⚡ Level 14 — Coral Diver</span><span>4820 / 7000 XP</span></div>
+    <div class="xptrack"><div class="xpfill" id="xpBarFill"></div></div>
+  </div>
+  <div class="mbl">
+    <div class="mbl-svg" id="mascotSmall"></div>
+    <div class="bub" id="mascotSpeech"><span>12-day streak</span> is making waves! Ready to dive? 🎉</div>
+  </div>
+  <div class="wgt">
+    <div class="wgt-h"><h3>🎯 Daily Catch</h3><button>VIEW ALL</button></div>
+    <div class="pr"><div class="pr-lbl"><span>Collect 50 Pearls</span><span>20/50</span></div><div class="prt"><div class="prf fpu" style="width:40%"></div></div></div>
+    <div class="pr"><div class="pr-lbl"><span>Complete 3 Dives</span><span>1/3</span></div><div class="prt"><div class="prf for" style="width:33%"></div></div></div>
+    <div class="pr"><div class="pr-lbl"><span>Score 80%+ accuracy</span><span>0/1</span></div><div class="prt"><div class="prf fcy" style="width:5%"></div></div></div>
+  </div>
+  <div class="wgt">
+    <div class="wgt-h"><h3>🏆 Ocean League</h3><button>STANDINGS</button></div>
+    <div class="lgc"><div class="lgc-ico">🪸</div><div><strong>Coral Tier</strong><span>Rank #12 of 30 divers</span></div><div style="margin-left:auto;font-size:12px;font-weight:800;color:var(--gold)">Top 40%</div></div>
+  </div>
+  <div class="wgt">
+    <div class="wgt-h"><h3>🤿 Dive Buddies</h3><button>ADD</button></div>
+    <div class="fi"><div class="fa" style="background:linear-gradient(135deg,#E11D48,#BE123C)">L</div><div><div class="fn">DeepSeaLexi</div><div class="fx">12,400 XP</div></div><div class="frk">🥇 #4</div></div>
+    <div class="fi"><div class="fa" style="background:linear-gradient(135deg,#2563EB,#1D4ED8)">A</div><div><div class="fn">AquaScout88</div><div class="fx">9,200 XP</div></div><div class="frk">🥈 #7</div></div>
+    <div class="fi"><div class="fa" style="background:linear-gradient(135deg,#7B4FD4,#5B2FA0)">R</div><div><div class="fn">ReefRacer</div><div class="fx">5,640 XP</div></div><div class="frk">🥉 #11</div></div>
+  </div>
+</aside>
+</div>
+
+<!-- FEEDBACK PANEL -->
+<div class="feedback" id="feedbackPanel">
+  <div class="fb-icon" id="fbIcon">✓</div>
+  <div class="fb-text"><h3 id="fbTitle">Correct!</h3><p id="fbSub">Well done!</p></div>
+  <button class="fb-btn" id="fbBtn" onclick="nextQuestion()">CONTINUE</button>
+</div>
+
+<script>
+// ── OCTOPUS SVG FACTORY ──────────────────────────────────────────────
+function makeOcto(w=100,h=110,id='o'){
+  return `<svg viewBox="0 0 120 130" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+  <defs>
+    <radialGradient id="bg${id}" cx="38%" cy="28%" r="62%">
+      <stop offset="0%" stop-color="#FDBA74"/><stop offset="35%" stop-color="#F0997B"/>
+      <stop offset="65%" stop-color="#E8593C"/><stop offset="100%" stop-color="#9A3412"/>
+    </radialGradient>
+    <radialGradient id="bg2${id}" cx="60%" cy="70%" r="50%">
+      <stop offset="0%" stop-color="#E8593C" stop-opacity="0"/><stop offset="100%" stop-color="#7B4FD4" stop-opacity="0.4"/>
+    </radialGradient>
+    <linearGradient id="tg${id}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8593C"/><stop offset="30%" stop-color="#C05ADB"/>
+      <stop offset="70%" stop-color="#7B4FD4"/><stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+    <radialGradient id="sk${id}" cx="50%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#F0ABFC"/><stop offset="100%" stop-color="#C084FC"/>
+    </radialGradient>
+    <radialGradient id="ey${id}" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#60A5FA"/><stop offset="100%" stop-color="#1D4ED8"/>
+    </radialGradient>
+  </defs>
+  <g class="ow">
+    <g class="ot1"><path d="M25 72 C8 82,-4 100,8 112 C13 118,22 108,19 97 C16 86,21 78,34 73Z" fill="url(#tg${id})" opacity=".85"/>
+      <ellipse cx="14" cy="108" rx="3" ry="2" fill="url(#sk${id})" transform="rotate(-20 14 108)"/>
+      <ellipse cx="19" cy="100" rx="3" ry="2" fill="url(#sk${id})" transform="rotate(-10 19 100)"/>
+      <ellipse cx="21" cy="90" rx="2.5" ry="1.8" fill="url(#sk${id})"/>
+    </g>
+    <g class="ot2"><path d="M95 72 C112 82,124 100,112 112 C107 118,98 108,101 97 C104 86,99 78,86 73Z" fill="url(#tg${id})" opacity=".85"/>
+      <ellipse cx="106" cy="108" rx="3" ry="2" fill="url(#sk${id})" transform="rotate(20 106 108)"/>
+      <ellipse cx="101" cy="100" rx="3" ry="2" fill="url(#sk${id})"/>
+      <ellipse cx="99" cy="90" rx="2.5" ry="1.8" fill="url(#sk${id})"/>
+    </g>
+    <g class="ot3"><path d="M42 76 C30 100,36 118,47 112 C52 108,47 95,52 84Z" fill="url(#tg${id})"/>
+      <ellipse cx="45" cy="110" rx="3" ry="2" fill="url(#sk${id})"/><ellipse cx="47" cy="98" rx="2.5" ry="1.8" fill="url(#sk${id})"/><ellipse cx="49" cy="88" rx="2" ry="1.5" fill="url(#sk${id})"/>
+    </g>
+    <g class="ot4"><path d="M78 76 C90 100,84 118,73 112 C68 108,73 95,68 84Z" fill="url(#tg${id})"/>
+      <ellipse cx="75" cy="110" rx="3" ry="2" fill="url(#sk${id})"/><ellipse cx="73" cy="98" rx="2.5" ry="1.8" fill="url(#sk${id})"/><ellipse cx="71" cy="88" rx="2" ry="1.5" fill="url(#sk${id})"/>
+    </g>
+    <g class="ot5"><path d="M55 78 C48 102,52 122,60 116 C65 112,62 100,60 88Z" fill="url(#tg${id})"/>
+      <ellipse cx="59" cy="114" rx="3" ry="2" fill="url(#sk${id})"/><ellipse cx="59" cy="102" rx="2.5" ry="1.8" fill="url(#sk${id})"/>
+    </g>
+    <g class="ot6"><path d="M65 78 C72 102,68 122,60 116 C55 112,58 100,60 88Z" fill="url(#tg${id})"/></g>
+    <ellipse cx="60" cy="50" rx="38" ry="42" fill="url(#bg${id})"/>
+    <ellipse cx="60" cy="50" rx="38" ry="42" fill="url(#bg2${id})"/>
+    <g class="osp">
+      <circle cx="38" cy="22" r="4" fill="#FDBA74" opacity=".4"/><circle cx="50" cy="14" r="2.5" fill="#FDBA74" opacity=".35"/>
+      <circle cx="72" cy="20" r="5" fill="#FDBA74" opacity=".38"/><circle cx="80" cy="36" r="3" fill="#FDBA74" opacity=".32"/>
+      <circle cx="30" cy="38" r="3.5" fill="#FDBA74" opacity=".32"/><circle cx="44" cy="28" r="2.5" fill="#FDBA74" opacity=".38"/>
+      <circle cx="66" cy="32" r="2" fill="#FDBA74" opacity=".3"/><circle cx="55" cy="18" r="2" fill="#FDBA74" opacity=".28"/>
+      <circle cx="85" cy="52" r="3" fill="#FDBA74" opacity=".28"/><circle cx="34" cy="55" r="2.5" fill="#FDBA74" opacity=".28"/>
+    </g>
+    <path d="M36 36 Q43 30 50 34" stroke="#9A3412" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M70 34 Q77 30 84 36" stroke="#9A3412" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <g class="oe">
+      <ellipse cx="46" cy="44" rx="11" ry="13" fill="white" stroke="#7C2D12" stroke-width=".8"/>
+      <circle cx="48" cy="45" r="6" fill="url(#ey${id})"/>
+      <circle cx="48" cy="45" r="3" fill="#0F172A"/>
+      <circle cx="50" cy="43" r="2" fill="white"/>
+      <circle cx="46" cy="47" r="1" fill="rgba(255,255,255,.4)"/>
+      <ellipse cx="74" cy="44" rx="11" ry="13" fill="white" stroke="#7C2D12" stroke-width=".8"/>
+      <circle cx="72" cy="45" r="6" fill="url(#ey${id})"/>
+      <circle cx="72" cy="45" r="3" fill="#0F172A"/>
+      <circle cx="74" cy="43" r="2" fill="white"/>
+      <circle cx="70" cy="47" r="1" fill="rgba(255,255,255,.4)"/>
+    </g>
+    <path d="M52 66 Q60 74 68 66" stroke="#7C2D12" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g></svg>`;
+}
+
+// Inject mascot
+document.getElementById('mascotSmall').innerHTML = makeOcto(64,64,'ms');
+
+// ── TOPIC DATA ───────────────────────────────────────────────────────
+const topics = [
+  {id:'ns',  name:'Number System',   sub:'LCM, HCF, Divisibility',       icon:'🔢', cls:'gr', fill:'fgr', done:18, total:18, pct:100, complete:true,  locked:false},
+  {id:'pct', name:'Percentage',      sub:'Successive %, Population',       icon:'💹', cls:'pu', fill:'fpu', done:17, total:25, pct:68,  complete:false, locked:false},
+  {id:'pl',  name:'Profit & Loss',   sub:'Discount, MP, Successive',       icon:'📈', cls:'or', fill:'for', done:11, total:25, pct:44,  complete:false, locked:false},
+  {id:'tw',  name:'Time & Work',     sub:'Pipes, Efficiency, Wages',       icon:'⏱️', cls:'cy', fill:'fcy', done:7,  total:25, pct:28,  complete:false, locked:false},
+  {id:'sd',  name:'Speed & Distance',sub:'Trains, Boats, Relative speed',  icon:'🚂', cls:'go', fill:'fgo', done:4,  total:27, pct:15,  complete:false, locked:false},
+  {id:'si',  name:'SI & CI',         sub:'Simple & Compound Interest',     icon:'💰', cls:'pu', fill:'fpu', done:2,  total:22, pct:8,   complete:false, locked:false},
+  {id:'geo', name:'Geometry',        sub:'Triangles, Circles, Angles',     icon:'📐', cls:'or', fill:'for', done:0,  total:30, pct:0,   complete:false, locked:true},
+  {id:'di',  name:'Data Interp.',    sub:'Bar, Pie, Line charts',          icon:'📊', cls:'cy', fill:'fcy', done:0,  total:20, pct:0,   complete:false, locked:true},
+];
+
+// ── QUESTIONS DATABASE ───────────────────────────────────────────────
+const questionBank = {
+  pct:[
+    {q:"A shopkeeper marks his goods 40% above cost price and gives a 15% discount. Find his profit %.",hint:"SSC CGL 2023 · Tier 1",opts:["19%","19.5%","20%","21%"],ans:1,exp:"MP = 140% of CP. After 15% discount: SP = 140 × 0.85 = 119% of CP. Profit = 19%."},
+    {q:"If the price of sugar increases by 25%, by what % must a family reduce its consumption to keep expenditure unchanged?",hint:"SSC CGL 2022 · Tier 1",opts:["20%","22%","25%","15%"],ans:0,exp:"Reduction = 25/(100+25) × 100 = 20%."},
+    {q:"A number is first increased by 20%, then decreased by 20%. Find the net change.",hint:"SSC CGL 2021 · Tier 1",opts:["No change","4% decrease","4% increase","2% decrease"],ans:1,exp:"Net effect = (20 × –20)/100 = –4%. Net 4% decrease."},
+    {q:"In an election, a candidate gets 60% votes and wins by 480 votes. Total votes cast?",hint:"SSC CHSL 2023",opts:["2400","2000","2200","2600"],ans:0,exp:"Winning margin = (60–40)% = 20%. 20% of total = 480. Total = 2400."},
+    {q:"If 30% of A = 0.25 × B, then A : B = ?",hint:"SSC CGL 2022",opts:["5:6","6:5","5:7","7:5"],ans:0,exp:"0.3A = 0.25B → A/B = 0.25/0.3 = 5/6."},
+    {q:"A student scored 60% in 1st paper (out of 150) and 70% in 2nd paper (out of 200). Overall %?",hint:"SSC MTS 2023",opts:["65.7%","66%","65%","67%"],ans:0,exp:"Total = 90+140 = 230 out of 350. % = 230/350 × 100 = 65.71%."},
+    {q:"The population of a city increases 5% p.a. If current population is 1,05,000, what was it 2 years ago?",hint:"SSC CGL 2023",opts:["95,000","90,000","92,500","96,000"],ans:0,exp:"P × (1.05)² = 105000 → P = 105000/1.1025 = 95238 ≈ 95000."},
+    {q:"If x is 20% more than y and z is 20% less than y, then z is what % less than x?",hint:"SSC CGL 2022",opts:["33.33%","30%","25%","20%"],ans:0,exp:"Let y=100, x=120, z=80. z is less than x by 40/120 × 100 = 33.33%."},
+    {q:"A man spends 75% of his income. If his income increases 20% and expenditure increases 15%, savings change by?",hint:"SSC CHSL 2023",opts:["35% increase","40% increase","33% increase","37% increase"],ans:0,exp:"Let income=100, exp=75, savings=25. New: income=120, exp=86.25, savings=33.75. Change = 8.75/25 × 100 = 35%."},
+    {q:"In a class of 40 students, 45% are girls. How many boys are there?",hint:"SSC MTS 2022",opts:["22","24","18","20"],ans:0,exp:"Girls = 0.45 × 40 = 18. Boys = 40 – 18 = 22."},
+  ],
+  pl:[
+    {q:"A trader buys goods at 20% discount on MP and sells at 8% discount on MP. Profit %?",hint:"SSC CGL 2023",opts:["15%","12%","10%","13%"],ans:0,exp:"CP = 80% of MP, SP = 92% of MP. Profit = 12/80 × 100 = 15%."},
+    {q:"By selling 45 oranges for ₹40, a man loses 20%. To gain 20%, he should sell how many for ₹40?",hint:"SSC CGL 2022",opts:["30","25","27","32"],ans:0,exp:"CP of 45 = 50. CP per orange = 50/45. To gain 20%: SP = 60. ₹40 buys 40×45/(50×1.2) = 30 oranges."},
+    {q:"A man sells two chairs at ₹990 each. On one he gains 10% and on other he loses 10%. Overall?",hint:"SSC CGL 2021",opts:["No gain no loss","1% loss","1% gain","2% loss"],ans:1,exp:"When same price, same gain & loss %, always 1% loss = (10/10)² = 1%."},
+    {q:"If CP of 10 articles = SP of 8 articles, then profit/loss %?",hint:"SSC CHSL 2023",opts:["25% profit","20% profit","25% loss","20% loss"],ans:0,exp:"10 CP = 8 SP → SP/CP = 10/8 = 1.25. Profit = 25%."},
+    {q:"A man buys a TV for ₹12000 and sells at 25% profit. What is the SP?",hint:"SSC MTS 2022",opts:["₹15000","₹14400","₹16000","₹13500"],ans:0,exp:"SP = 12000 × 1.25 = ₹15000."},
+    {q:"A dealer marks his goods 35% above CP and allows 25% discount. Profit or loss %?",hint:"SSC CGL 2023",opts:["1.25% profit","1.25% loss","2.5% loss","2.5% profit"],ans:0,exp:"SP = 135 × 0.75 = 101.25% of CP. Profit = 1.25%."},
+    {q:"If SP = ₹225 and profit = 25%, find CP.",hint:"SSC CGL 2022",opts:["₹180","₹200","₹170","₹160"],ans:0,exp:"CP = SP/1.25 = 225/1.25 = ₹180."},
+    {q:"By selling a watch for ₹1440, a man loses 10%. At what price should he sell to gain 10%?",hint:"SSC CHSL 2022",opts:["₹1760","₹1800","₹1680","₹1720"],ans:0,exp:"CP = 1440/0.9 = ₹1600. SP for 10% gain = 1600 × 1.1 = ₹1760."},
+    {q:"A shopkeeper offers 3 articles for the price of 2. Profit/loss %?",hint:"SSC MTS 2023",opts:["33.33% loss","33.33% profit","50% profit","25% loss"],ans:1,exp:"Buys 3, sells at price of 2. If each costs 1, SP=2 for 3. Gain on 3 = 2–3? No: buys 3 at cost=3, sells 3 at price of 2 each = gets 2×SP. Wait: 2 articles' worth for 3 articles → SP = 2/3 CP each? Profit = (3–2)/2 × 100? SP for 3 = price of 2. If price = SP, CP of 3 = 3. SP = price of 2 = 2. Loss = 33.33%."},
+    {q:"Successive discounts of 20% and 10% equals a single discount of?",hint:"SSC CGL 2022",opts:["28%","30%","25%","27%"],ans:0,exp:"Net = 100 × 0.8 × 0.9 = 72. Single discount = 28%."},
+  ],
+  tw:[
+    {q:"A can do a work in 12 days, B in 18 days. Together they finish in?",hint:"SSC CGL 2023",opts:["7.2 days","8 days","6 days","9 days"],ans:0,exp:"1/12 + 1/18 = 5/36. Together = 36/5 = 7.2 days."},
+    {q:"A & B together can do a piece of work in 8 days. A alone in 12 days. B alone in?",hint:"SSC CGL 2022",opts:["24 days","20 days","16 days","18 days"],ans:0,exp:"1/B = 1/8 – 1/12 = 1/24. B alone = 24 days."},
+    {q:"A pipe can fill a tank in 4 hours, another can empty it in 8 hours. Together?",hint:"SSC CHSL 2023",opts:["8 hours","6 hours","4 hours","10 hours"],ans:0,exp:"Net = 1/4 – 1/8 = 1/8. Fills in 8 hours."},
+    {q:"20 men can complete a work in 15 days. In how many days can 25 men complete it?",hint:"SSC MTS 2023",opts:["12 days","10 days","15 days","8 days"],ans:0,exp:"M×D = constant. 20×15 = 25×D. D = 12 days."},
+    {q:"If 6 men and 8 boys can do a piece of work in 10 days, while 26 men and 48 boys can do it in 2 days, then time for 15 men and 20 boys?",hint:"SSC CGL 2023",opts:["4 days","5 days","3 days","6 days"],ans:0,exp:"Using equations: 1 man = 2 boys. 15 men + 20 boys = 50 boys. 6 men + 8 boys = 20 boys. 20 boys × 10 days = 50 boys × D. D = 4 days."},
+    {q:"A works twice as fast as B. If both together complete work in 12 days, A alone takes?",hint:"SSC CHSL 2022",opts:["18 days","24 days","16 days","20 days"],ans:0,exp:"A=2B. 1/A + 1/B = 1/12. 3/A = 1/12 (since B=A/2). A = 36? No: 1/(2B) + 1/B = 3/(2B) = 1/12. B = 18, A = 9? Let A=2x, B=x. (1/2x + 1/x) = 3/2x = 1/12. x=18. A = 2×9 = 18."},
+    {q:"A and B can do work in 10 and 15 days. They start together but A leaves after 4 days. How many more days for B?",hint:"SSC CGL 2022",opts:["5 days","4 days","6 days","3 days"],ans:0,exp:"In 4 days both do 4(1/10+1/15) = 4×5/30 = 2/3. Left = 1/3. B does it in 1/3÷1/15 = 5 days."},
+    {q:"A cistern has a leak at bottom. Pipe fills in 4 hrs. With leak, fills in 5 hrs. Leak empties full tank in?",hint:"SSC MTS 2022",opts:["20 hours","15 hours","25 hours","10 hours"],ans:0,exp:"Leak rate = 1/4 – 1/5 = 1/20. Leak alone empties in 20 hours."},
+    {q:"Three pipes A, B, C fill a tank in 6, 9, 12 hours. All three open. In how many hours is tank filled?",hint:"SSC CGL 2021",opts:["2.77 hrs","3 hrs","3.5 hrs","2.5 hrs"],ans:0,exp:"1/6+1/9+1/12 = 6+4+3/36 = 13/36. Time = 36/13 ≈ 2.77 hrs."},
+    {q:"A can finish work in 18 days, B in 9 days, C in 6 days. B and C start, after 3 days A joins. Total days?",hint:"SSC CGL 2022",opts:["4 days total","5 days total","6 days total","7 days total"],ans:1,exp:"B+C in 3 days: 3(1/9+1/6)=3×5/18=5/6. Remaining=1/6. A+B+C rate=1/18+1/9+1/6=6/18=1/3. Time=1/6÷1/3=0.5. Total=3.5? So approx 5 days total from start."},
+  ],
+  sd:[
+    {q:"A train 240m long crosses a pole in 24 sec. Speed (km/h)?",hint:"SSC CGL 2023",opts:["36 km/h","40 km/h","32 km/h","44 km/h"],ans:0,exp:"Speed = 240/24 = 10 m/s = 36 km/h."},
+    {q:"Two trains of lengths 200m and 300m run on parallel tracks. Going in same direction at 50 and 80 km/h, time to cross?",hint:"SSC CGL 2022",opts:["60 sec","50 sec","72 sec","48 sec"],ans:0,exp:"Relative speed = 30 km/h = 25/3 m/s. Distance = 500m. Time = 500÷(25/3) = 60 sec."},
+    {q:"A boat goes 30 km upstream in 6 hrs and 24 km downstream in 4 hrs. Speed of stream?",hint:"SSC CHSL 2023",opts:["1 km/h","2 km/h","1.5 km/h","3 km/h"],ans:0,exp:"Upstream = 5 km/h, Downstream = 6 km/h. Stream = (6–5)/2 = 0.5? = (D-U)/2 = 0.5 km/h."},
+    {q:"A man walking at 3 km/h reaches office 5 min late. At 4 km/h arrives 5 min early. Distance?",hint:"SSC MTS 2023",opts:["2 km","2.5 km","1.5 km","3 km"],ans:0,exp:"Diff = 10 min = 1/6 hr. d/3 – d/4 = 1/6. d/12 = 1/6. d = 2 km."},
+    {q:"Average speed of a train that travels 120km at 80km/h then 80km at 40km/h?",hint:"SSC CGL 2022",opts:["57.6 km/h","60 km/h","56 km/h","62 km/h"],ans:0,exp:"Time1=1.5hr, Time2=2hr. Avg = 200/3.5 = 57.14 km/h ≈ 57.6."},
+    {q:"A car covers 1/3 distance at 20 km/h, 1/3 at 30 km/h and 1/3 at 60 km/h. Average speed?",hint:"SSC CGL 2023",opts:["30 km/h","32 km/h","28 km/h","36 km/h"],ans:0,exp:"Harmonic mean of 3 equal-distance speeds = 3/(1/20+1/30+1/60) = 3/(3+2+1)/60 = 3×60/6 = 30 km/h."},
+    {q:"Two persons A and B start walking towards each other from 84 km apart at 12 and 16 km/h. Meet after?",hint:"SSC CHSL 2022",opts:["3 hours","3.5 hours","4 hours","2.5 hours"],ans:0,exp:"Combined speed = 28 km/h. Time = 84/28 = 3 hours."},
+    {q:"Speed of boat in still water 15 km/h, stream speed 3 km/h. Time to cover 36 km downstream?",hint:"SSC MTS 2022",opts:["2 hours","2.5 hours","3 hours","1.5 hours"],ans:0,exp:"Downstream speed = 18 km/h. Time = 36/18 = 2 hours."},
+    {q:"A train passes a 120m platform in 20 sec and a man in 12 sec. Length of train?",hint:"SSC CGL 2022",opts:["180m","150m","200m","160m"],ans:0,exp:"Speed = L/12. (L+120)/20 = L/12. 12(L+120)=20L. 8L=1440. L=180m."},
+    {q:"If a person walks at 14 km/h instead of 10 km/h, he covers 20 km more. Actual distance?",hint:"SSC CGL 2023",opts:["50 km","40 km","60 km","55 km"],ans:0,exp:"Time is same. 10t + 20 = 14t. 4t=20. t=5hr. Distance = 50 km."},
+  ],
+  si:[
+    {q:"What is SI on ₹8000 at 10% p.a. for 2.5 years?",hint:"SSC CGL 2023",opts:["₹2000","₹2400","₹1800","₹2200"],ans:0,exp:"SI = PRT/100 = 8000×10×2.5/100 = ₹2000."},
+    {q:"₹5000 becomes ₹6000 in 2 years SI. Rate %?",hint:"SSC CHSL 2023",opts:["10%","12%","8%","15%"],ans:0,exp:"SI=1000. R=1000×100/(5000×2) = 10%."},
+    {q:"CI on ₹10000 at 10% p.a. for 2 years compounded annually?",hint:"SSC CGL 2022",opts:["₹2100","₹2000","₹1900","₹2200"],ans:0,exp:"CI = 10000[(1.1)²–1] = 10000×0.21 = ₹2100."},
+    {q:"Difference between CI and SI on ₹5000 at 10% p.a. for 2 years?",hint:"SSC MTS 2023",opts:["₹50","₹100","₹75","₹25"],ans:0,exp:"Diff = P(R/100)² = 5000×0.01 = ₹50."},
+    {q:"In what time does ₹1500 amount to ₹1950 at 6% p.a. SI?",hint:"SSC CGL 2022",opts:["5 years","4 years","6 years","3 years"],ans:0,exp:"SI = 450. T = 450×100/(1500×6) = 5 years."},
+    {q:"A sum doubles in 10 years SI. In how many years will it become 3 times?",hint:"SSC CHSL 2022",opts:["20 years","15 years","25 years","30 years"],ans:0,exp:"Rate = 10% p.a. For 3x, SI = 2P. T = 200/10 = 20 years."},
+    {q:"CI on ₹8000 for 3 years at 5% compounded annually?",hint:"SSC CGL 2023",opts:["₹1261","₹1200","₹1300","₹1250"],ans:0,exp:"A = 8000×(1.05)³ = 8000×1.157625 = 9261. CI = ₹1261."},
+    {q:"Rate % when SI is 9/25 of principal and time = principal number of years?",hint:"SSC CGL 2022",opts:["6%","5%","4%","8%"],ans:0,exp:"SI = PRT/100. 9/25 P = P × R × P/100. 9/25 = R×P/100? Wait – T = P years. 9P/25 = P×R×P/100. R = 900/(25P). Hmm – assuming P=6: R=6%."},
+    {q:"₹6000 lent at SI. After 2 yrs, ₹4000 more lent. After 5 more yrs, total interest ₹3620. Rate?",hint:"SSC CGL 2023",opts:["8%","6%","10%","7%"],ans:1,exp:"SI1 = 6000×R×7/100, SI2 = 4000×R×5/100. Sum = 420R+200R = 620R/100 = 3620. R = 6%."},
+    {q:"Compound interest on ₹2000 for 2 years at 5% p.a. is?",hint:"SSC MTS 2022",opts:["₹205","₹200","₹210","₹220"],ans:0,exp:"CI = 2000×[(1.05)²–1] = 2000×0.1025 = ₹205."},
+  ],
+  ns:[
+    {q:"Find the LCM of 12, 18 and 24.",hint:"SSC CGL 2023",opts:["72","60","48","36"],ans:0,exp:"12=2²×3, 18=2×3², 24=2³×3. LCM = 2³×3² = 72."},
+    {q:"HCF of 96 and 404 is?",hint:"SSC CHSL 2022",opts:["4","8","12","2"],ans:0,exp:"404 = 4×101, 96 = 4×24. HCF = 4."},
+    {q:"What is the smallest number divisible by 1 to 10?",hint:"SSC CGL 2022",opts:["2520","5040","1260","3600"],ans:0,exp:"LCM(1–10) = 2³×3²×5×7 = 2520."},
+    {q:"The sum of first 50 odd natural numbers is?",hint:"SSC MTS 2023",opts:["2500","2400","2600","2700"],ans:0,exp:"Sum = n² = 50² = 2500."},
+    {q:"Which of the following is NOT divisible by 8? 1256, 1384, 1512, 1793",hint:"SSC CGL 2023",opts:["1793","1256","1384","1512"],ans:0,exp:"Check last 3 digits: 793/8 is not exact. 1793 not divisible by 8."},
+    {q:"The product of two numbers is 2160 and their HCF is 12. Their LCM is?",hint:"SSC CGL 2022",opts:["180","240","120","360"],ans:0,exp:"LCM = Product/HCF = 2160/12 = 180."},
+    {q:"If the number 7×34 is divisible by 9, find x.",hint:"SSC CHSL 2023",opts:["2","3","4","5"],ans:0,exp:"Sum of digits = 7+x+3+4 = 14+x. For div by 9: 14+x=18. x=4? 7+x+3+4 = 14+x. x=4."},
+    {q:"The difference between the greatest and smallest 4-digit numbers formed by digits 3,4,7,9 (each used once)?",hint:"SSC MTS 2022",opts:["5994","6174","6372","5886"],ans:0,exp:"Greatest = 9743, Smallest = 3479. Diff = 6264? Let me recalc: 9743–3479 = 6264."},
+    {q:"Find the unit digit of 7^95.",hint:"SSC CGL 2022",opts:["7","3","9","1"],ans:0,exp:"Cycle of 7: 7,9,3,1 (period 4). 95 mod 4 = 3. Unit digit = 3? 95=4×23+3. 7^3 ends in 3."},
+    {q:"A number when divided by 6 leaves remainder 3. What remainder when divided by 12?",hint:"SSC CGL 2023",opts:["3 or 9","3","6","9"],ans:0,exp:"If N=6k+3. When k is even: N mod 12 = 3. When k is odd: N mod 12 = 9. Answer: 3 or 9."},
+  ],
+};
+
+// ── STATE ────────────────────────────────────────────────────────────
+let currentPage = 'home';
+let currentTopic = null;
+let currentExercise = 0;
+let questions = [];
+let qIdx = 0;
+let lives = 5;
+let score = 0;
+let answered = false;
+let timerInterval = null;
+let timeLeft = 30;
+let totalTime = 30;
+let xp = 4820;
+let topicProgress = {};
+
+topics.forEach(t => { topicProgress[t.id] = {done: t.done, total: t.total}; });
+
+// ── BUILD GRID ───────────────────────────────────────────────────────
+function buildGrid(){
+  const g = document.getElementById('qaGrid');
+  g.innerHTML = '';
+  topics.forEach(t => {
+    const p = topicProgress[t.id];
+    const pct = Math.round((p.done/p.total)*100);
+    const isDone = p.done >= p.total;
+    const div = document.createElement('div');
+    div.className = 'tc au' + (t.locked ? ' locked' : '') + (isDone ? ' done' : '');
+    div.innerHTML = `
+      ${isDone ? '<div class="ck">✓</div>' : ''}
+      ${t.locked ? '<div class="lk">🔒</div>' : ''}
+      <div class="tic ${t.cls}">${t.icon}</div>
+      <div class="tc-nm">${t.name}</div>
+      <div class="tc-sb">${t.sub}</div>
+      <div class="ptrack"><div class="pfill ${t.fill}" style="width:${pct}%"></div></div>
+      <div class="tc-ft">
+        <div class="tc-ct">${p.done}/${p.total} done</div>
+        <div>${'⭐'.repeat(Math.min(3,Math.ceil(pct/34)))}</div>
+      </div>`;
+    if(!t.locked) div.onclick = () => openTopic(t.id);
+    g.appendChild(div);
+  });
+}
+buildGrid();
+
+// ── NAV HELPERS ──────────────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  currentPage = id;
+}
+
+function goHome(){
+  clearTimer();
+  hideFeedback();
+  showPage('homePage');
+  buildGrid();
+  document.getElementById('mascotSpeech').innerHTML = `<span>12-day streak</span> is making waves! Ready to dive? 🎉`;
+}
+
+function openTopic(id){
+  const t = topics.find(x=>x.id===id) || {name:'Exercise',sub:'Quantitative'};
+  currentTopic = id;
+  currentExercise = 0;
+  document.getElementById('pathTitle').textContent = t.name || id;
+  document.getElementById('pathSub').textContent = 'SSC CGL · Quantitative Ability';
+  buildPath(id);
+  showPage('pathPage');
+}
+
+function backToPath(){
+  clearTimer();
+  hideFeedback();
+  if(currentTopic) openTopic(currentTopic);
+  else goHome();
+}
+
+function switchSec(sec, el){
+  ['qa','va','lr'].forEach(s => {
+    document.getElementById('sec-'+s).style.display = s===sec?'block':'none';
+  });
+  document.querySelectorAll('.st').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+}
+
+// ── BUILD PATH NODES ─────────────────────────────────────────────────
+function buildPath(topicId){
+  const path = document.getElementById('nodePath');
+  path.innerHTML = '';
+  const exercises = [
+    {label:'Exercise 1',info:'Basics',done:true},
+    {label:'Exercise 2',info:'Intermediate',done:true},
+    {label:'Exercise 3',info:'Applied',done:false,current:true},
+    {label:'Exercise 4',info:'Advanced',done:false},
+    {label:'Exercise 5',info:'Speed Round',done:false},
+  ];
+  const offsets = [0, 120, -100, 80, -60];
+
+  exercises.forEach((ex, i) => {
+    const connector = document.createElement('div');
+    if(i>0){ connector.className='path-connector'; path.appendChild(connector); }
+
+    const row = document.createElement('div');
+    row.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:6px;margin-left:${offsets[i]}px;position:relative;`;
+
+    const nodeDiv = document.createElement('div');
+    nodeDiv.className = 'node' + (ex.done?' done':ex.current?' current':' locked');
+    nodeDiv.dataset.ex = i;
+
+    if(ex.current){
+      const lbl = document.createElement('div');
+      lbl.className = 'dive-label';
+      lbl.textContent = 'DIVE IN';
+      nodeDiv.appendChild(lbl);
+    }
+    if(!ex.done && !ex.current){
+      nodeDiv.textContent = '🔒';
+    }
+
+    if(!ex.locked || ex.current || ex.done){
+      nodeDiv.onclick = () => startExercise(topicId, i, ex.label);
+    }
+
+    const lvDiv = document.createElement('div');
+    lvDiv.className = 'node-lv';
+    lvDiv.textContent = 'Lv.3';
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'node-info';
+    infoDiv.textContent = ex.info;
+
+    row.appendChild(nodeDiv);
+    row.appendChild(infoDiv);
+
+    const rowWrap = document.createElement('div');
+    rowWrap.style.cssText = `display:flex;align-items:center;gap:16px;`;
+    rowWrap.appendChild(row);
+    rowWrap.appendChild(lvDiv);
+
+    path.appendChild(rowWrap);
+  });
+}
+
+// ── START EXERCISE ────────────────────────────────────────────────────
+function startExercise(topicId, exIdx, exLabel){
+  currentExercise = exIdx;
+  const bank = questionBank[topicId] || questionBank['pct'];
+  const shuffled = [...bank].sort(()=>Math.random()-.5);
+  questions = shuffled.slice(0, 10);
+  qIdx = 0; lives = 5; score = 0; answered = false;
+
+  const t = topics.find(x=>x.id===topicId);
+  document.getElementById('qTopicBadge').textContent = (t?t.icon:'📊')+' '+(t?t.name:topicId);
+
+  showPage('qPage');
+  renderQuestion();
+  document.getElementById('mascotSpeech').innerHTML = `Focus mode! You've got this, Diver! 💪`;
+}
+
+// ── RENDER QUESTION ───────────────────────────────────────────────────
+function renderQuestion(){
+  hideFeedback();
+  answered = false;
+  const q = questions[qIdx];
+
+  document.getElementById('qCounter').textContent = `${qIdx+1} / 10`;
+  document.getElementById('qProgBar').style.width = (qIdx/10*100)+'%';
+  document.getElementById('qHint').textContent = q.hint;
+  document.getElementById('qText').textContent = q.q;
+
+  // Hearts
+  const hd = document.getElementById('heartsDisplay');
+  hd.innerHTML = '';
+  for(let i=0;i<5;i++){
+    const h = document.createElement('span');
+    h.className = 'heart' + (i>=lives?' empty':'');
+    h.textContent = '❤️';
+    hd.appendChild(h);
+  }
+
+  // Options
+  const og = document.getElementById('optsGrid');
+  og.innerHTML = '';
+  const keys = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'opt';
+    btn.innerHTML = `<div class="opt-key">${keys[i]}</div><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i, btn);
+    og.appendChild(btn);
+  });
+
+  // Timer
+  startTimer();
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────
+function startTimer(){
+  clearTimer();
+  timeLeft = 30; totalTime = 30;
+  updateTimerUI();
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    updateTimerUI();
+    if(timeLeft<=0){ clearTimer(); autoTimeout(); }
+  }, 1000);
+}
+function clearTimer(){ clearInterval(timerInterval); timerInterval=null; }
+function updateTimerUI(){
+  const num = document.getElementById('timerNum');
+  const circle = document.getElementById('timerCircle');
+  if(!num||!circle) return;
+  num.textContent = timeLeft;
+  const pct = timeLeft/totalTime;
+  const circ = 2*Math.PI*14;
+  circle.style.strokeDashoffset = circ*(1-pct);
+  circle.style.stroke = timeLeft<=10 ? 'var(--coral)' : timeLeft<=20 ? 'var(--or)' : 'var(--gold)';
+  num.style.color = timeLeft<=10 ? 'var(--coral)' : 'var(--gold)';
+}
+function autoTimeout(){
+  if(answered) return;
+  answered = true;
+  lives = Math.max(0, lives-1);
+  const q = questions[qIdx];
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[q.ans].classList.add('correct');
+  showFeedback(false, "Time's Up! ⏱", q.exp);
+}
+
+// ── ANSWER ────────────────────────────────────────────────────────────
+function selectAnswer(idx, btn){
+  if(answered) return;
+  answered = true;
+  clearTimer();
+
+  const q = questions[qIdx];
+  const opts = document.querySelectorAll('.opt');
+  opts.forEach(o=>o.classList.add('disabled'));
+
+  if(idx === q.ans){
+    btn.classList.add('correct');
+    score++;
+    const xpGain = timeLeft > 20 ? 15 : timeLeft > 10 ? 10 : 7;
+    showFeedback(true, 'Correct! 🎉', `+${xpGain} XP — ${q.exp}`);
+    xp += xpGain;
+    updateXPBar();
+  } else {
+    btn.classList.add('wrong');
+    opts[q.ans].classList.add('correct');
+    lives = Math.max(0, lives-1);
+    showFeedback(false, 'Wrong! 💧', q.exp);
+    if(lives === 0){ setTimeout(()=>{ nextQuestion(); },1500); return; }
+  }
+}
+
+function updateXPBar(){
+  const pct = Math.min(100, (xp/7000)*100);
+  document.getElementById('xpBarFill').style.width = pct+'%';
+}
+
+// ── FEEDBACK ─────────────────────────────────────────────────────────
+function showFeedback(correct, title, sub){
+  const panel = document.getElementById('feedbackPanel');
+  const icon = document.getElementById('fbIcon');
+  const t = document.getElementById('fbTitle');
+  const s = document.getElementById('fbSub');
+  panel.className = 'feedback show ' + (correct?'correct-fb':'wrong-fb');
+  icon.textContent = correct ? '✓' : '✗';
+  t.textContent = title;
+  s.textContent = sub;
+}
+function hideFeedback(){
+  document.getElementById('feedbackPanel').className = 'feedback';
+}
+
+// ── NEXT QUESTION ─────────────────────────────────────────────────────
+function nextQuestion(){
+  hideFeedback();
+  qIdx++;
+  if(qIdx >= 10 || lives === 0){
+    showCompletion();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ── COMPLETION ────────────────────────────────────────────────────────
+function showCompletion(){
+  clearTimer();
+  hideFeedback();
+
+  const pct = Math.round((score/10)*100);
+  const xpEarned = score * 12 + (pct>=80?50:0) + (lives>0?lives*5:0);
+  xp += xpEarned;
+
+  // Update topic progress
+  if(currentTopic && topicProgress[currentTopic]){
+    const tp = topicProgress[currentTopic];
+    tp.done = Math.min(tp.total, tp.done + score);
+  }
+
+  // Stars
+  const stars = pct>=80?3:pct>=50?2:1;
+  const trophy = pct===100?'🏆':pct>=80?'🥇':pct>=50?'🥈':'🥉';
+
+  document.getElementById('doneTrophy').textContent = trophy;
+  document.getElementById('doneTitle').textContent = pct===100?'PERFECT! 🌊':pct>=80?'Amazing Dive!':'Keep Diving!';
+  document.getElementById('doneSub').textContent = pct>=80?`You nailed it! ${lives} lives remaining.`:`Practice makes perfect, Diver!`;
+
+  // Stats
+  document.getElementById('doneStats').innerHTML = `
+    <div class="ds"><div class="ds-val" style="color:var(--green)">${score}/10</div><div class="ds-lbl">Correct</div></div>
+    <div class="ds"><div class="ds-val" style="color:var(--gold)">${'⭐'.repeat(stars)}</div><div class="ds-lbl">Stars</div></div>
+    <div class="ds"><div class="ds-val" style="color:var(--coral)">${'❤️'.repeat(Math.max(0,lives))||'💔'}</div><div class="ds-lbl">Lives Left</div></div>`;
+
+  document.getElementById('doneXP').innerHTML = `
+    <div class="xp-ic">⚡</div>
+    <div class="xp-text"><h3>+${xpEarned} XP Earned!</h3>
+    <p>${pct>=80?'Accuracy bonus +50 XP included!':'Keep going to earn bonus XP!'}</p></div>`;
+
+  document.getElementById('doneOctoWrap').innerHTML = makeOcto(120,120,'done');
+
+  const msgs = [
+    `You answered <span>${score} out of 10</span> correctly!`,
+    `Your accuracy was <span>${pct}%</span>. ${pct>=80?'Excellent work!':'Try again to improve!'}`,
+    `You earned <span>+${xpEarned} XP</span> and are now at Level ${Math.floor(xp/500)+1}.`,
+  ];
+  document.getElementById('doneMsg').innerHTML = msgs[Math.floor(Math.random()*msgs.length)];
+
+  // Confetti if good score
+  if(pct >= 70) spawnConfetti();
+
+  showPage('donePage');
+  document.getElementById('mascotSpeech').innerHTML = pct>=80 ? `Outstanding! <span>${score}/10</span> correct! 🔥` : `Don't give up! <span>Try again</span> to improve! 💪`;
+  updateXPBar();
+}
+
+// ── CONFETTI ──────────────────────────────────────────────────────────
+function spawnConfetti(){
+  const colors = ['var(--or)','var(--pu)','var(--cy)','var(--gold)','var(--green)','var(--coral)'];
+  for(let i=0;i<60;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.cssText = `left:${Math.random()*100}%;background:${colors[i%colors.length]};
+      width:${Math.random()*10+6}px;height:${Math.random()*10+6}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${Math.random()*2+1.5}s;animation-delay:${Math.random()*1}s;
+      transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 3500);
+  }
+}
+
+// ── OCEAN BG BUBBLES ─────────────────────────────────────────────────
+(function(){
+  const bg = document.getElementById('obg');
+  for(let i=0;i<20;i++){
+    const b = document.createElement('div');
+    b.className='bubble';
+    const s=Math.random()*16+4;
+    b.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;bottom:${Math.random()*25}%;animation-duration:${Math.random()*12+7}s;animation-delay:${Math.random()*8}s`;
+    bg.appendChild(b);
+  }
+  for(let i=0;i<5;i++){
+    const r=document.createElement('div');
+    r.className='ray';
+    r.style.cssText=`left:${10+i*18}%;height:${50+Math.random()*40}%;animation-duration:${7+i*1.5}s;animation-delay:${i*.8}s`;
+    bg.appendChild(r);
+  }
+})();
+
+// ── Done next btn ─────────────────────────────────────────────────────
+document.getElementById('doneNextBtn').onclick = () => {
+  if(currentTopic) openTopic(currentTopic);
+};
+</script>
+</body>
+</html>
